@@ -6,7 +6,7 @@ import os
 app = Flask(__name__)
 
 #Set database path inside `instance/`
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))  # models/ folder path
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))  # models folder path
 DB_PATH = os.path.join(BASE_DIR, "../instance/quiz_master.db")  # Go up one level and then enter instance folder
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
@@ -15,15 +15,13 @@ app.config['SECRET_KEY'] = 'secret'
 
 db = SQLAlchemy(app)
 
-# User Table
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)  # Used for login
     password = db.Column(db.String(60), nullable=False)
     full_name = db.Column(db.String(100), nullable=False)
     qualification = db.Column(db.String(100), nullable=True)
-    dob = db.Column(db.Date, nullable=True)
+    dob = db.Column(db.String(10), nullable=True)  # Format: YYYY-MM-DD
     role = db.Column(db.String(10), nullable=False, default='user')
 
 # Subject Table
@@ -68,7 +66,7 @@ class Score(db.Model):
 # Function to Initialize Database
 def initialize_database():
     with app.app_context():
-        print("Creating database tables...")
+        print("Creating database tables")
         try:
             db.create_all()
             print("Tables created successfully!")
@@ -76,10 +74,9 @@ def initialize_database():
             # Create Admin User if they don't exist
             if not User.query.filter_by(role='admin').first():
                 admin_user = User(
-                    username='admin',
                     email='admin@example.com',
                     password='admin123',
-                    full_name='Admin User',
+                    full_name='Admin',
                     role='admin'
                 )
                 db.session.add(admin_user)
