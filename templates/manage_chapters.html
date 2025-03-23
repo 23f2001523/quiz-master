@@ -1,0 +1,23 @@
+<h2>Manage Chapters for {{ subject.name }}</h2>
+
+<a href="{{ url_for('manage_subjects') }}">← Back to Subjects</a> |
+<a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+
+<form method="POST">
+    <input type="text" name="name" placeholder="Chapter Name" required>
+    <textarea name="description" placeholder="Description"></textarea>
+    <button type="submit">Add Chapter</button>
+</form>
+
+<ul>
+    {% for chapter in chapters %}
+        <li>
+            <strong>{{ chapter.name }}</strong>
+            <p>{{ chapter.description }}</p> <!-- Display Chapter Description -->
+            <a href="{{ url_for('manage_quizzes', chapter_id=chapter.id) }}">View Quizzes</a>
+            <a href="{{ url_for('edit_chapter', chapter_id=chapter.id) }}">Edit</a>
+            <a href="{{ url_for('delete_chapter', chapter_id=chapter.id) }}" onclick="return confirm('Are you sure?')">Delete</a>
+        </li>
+    {% endfor %}
+</ul>
+

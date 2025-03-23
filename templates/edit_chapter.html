@@ -1,0 +1,13 @@
+<h2>Edit Chapter</h2>
+<form method="POST">
+    <label>Chapter Name:</label>
+    <input type="text" name="name" value="{{ chapter.name }}" required>
+
+    <label>Description:</label>
+    <textarea name="description">{{ chapter.description }}</textarea>
+
+    <button type="submit">Update Chapter</button>
+</form>
+
+<a href="{{ url_for('manage_chapters', subject_id=chapter.subject_id) }}">Back to Chapters</a>
+<a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>

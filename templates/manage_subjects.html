@@ -1,0 +1,22 @@
+<h2>Manage Subjects</h2>
+
+<a href="{{ url_for('admin_dashboard') }}">← Back to Admin Dashboard</a>
+
+<form method="POST">
+    <input type="text" name="name" placeholder="Subject Name" required>
+    <textarea name="description" placeholder="Description"></textarea>
+    <button type="submit">Add Subject</button>
+</form>
+
+<ul>
+    {% for subject in subjects %}
+        <li>
+            <strong>{{ subject.name }}</strong>
+            <p>{{ subject.description }}</p> <!-- Display Description -->
+            <a href="{{ url_for('manage_chapters', subject_id=subject.id) }}">View Chapters</a>
+            <a href="{{ url_for('edit_subject', subject_id=subject.id) }}">Edit</a>
+            <a href="{{ url_for('delete_subject', subject_id=subject.id) }}" onclick="return confirm('Are you sure?')">Delete</a>
+        </li>
+    {% endfor %}
+</ul>
+
