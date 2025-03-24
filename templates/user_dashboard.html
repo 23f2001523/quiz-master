@@ -6,11 +6,15 @@
 <body>
     <h2>Welcome, {{ user.full_name }}!</h2>
 
-    <p>Here you can take quizzes on various subjects.</p>
+    <p>Select a subject to attempt quizzes.</p>
 
     <ul>
         {% for subject in subjects %}
-            <li><a href="{{ url_for('view_subject', subject_id=subject.id) }}">{{ subject.name }}</a></li>
+            <li>
+                <strong>{{ subject.name }}</strong>
+                <p>{{ subject.description }}</p>
+                <a href="{{ url_for('view_quizzes', subject_id=subject.id) }}">View Quizzes</a>
+            </li>
         {% endfor %}
     </ul>
 

@@ -1,8 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from models.models import db, User, Subject, Chapter, Quiz, Question
+from models.models import db, User, Subject, Chapter, Quiz, Question, Score
 import os
 from datetime import datetime
-
 
 app = Flask(__name__)
 
@@ -14,11 +13,32 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'secret'
 
-db.init_app(app)
+db.init_app(app)  # <-- Now db is properly initialized
 
 # Function to check admin authentication
 def admin_required():
     return "user_id" in session and session["role"] == "admin"
+
+# ====================== ADMIN USER INITIALIZATION ======================
+
+def initialize_admin():
+    with app.app_context():
+        db.create_all()  # Ensure tables exist
+        
+        # Check if an admin user exists
+        existing_admin = User.query.filter_by(role='admin').first()
+        
+        if not existing_admin:
+            admin_user = User(
+                email='admin@example.com',
+                password='admin123',  # Change this password in production
+                full_name='Admin',
+                role='admin'
+            )
+            db.session.add(admin_user)
+            db.session.commit()
+            print("Admin user created successfully!")
+
 
 # ====================== AUTH ROUTES ======================
 
@@ -330,8 +350,169 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
+@app.route("/view_quizzes/<int:subject_id>")
+def view_quizzes(subject_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+    subject = Subject.query.get(subject_id)
+
+    if not subject:
+        return "Subject not found", 404
+
+    chapters = Chapter.query.filter_by(subject_id=subject_id).all()
+
+    quizzes_by_chapter = {}
+    user_scores = {}  # Dictionary to store user scores for each quiz
+
+    for chapter in chapters:
+        quizzes = Quiz.query.filter_by(chapter_id=chapter.id).all()
+        quizzes_by_chapter[chapter.id] = quizzes
+
+        # Fetch scores for each quiz for the current user
+        for quiz in quizzes:
+            score_record = Score.query.filter_by(user_id=user_id, quiz_id=quiz.id).order_by(Score.time_stamp_of_attempt.desc()).first()
+            user_scores[quiz.id] = score_record.total_scored if score_record else None
+
+    return render_template("view_quizzes.html", subject=subject, chapters=chapters, quizzes_by_chapter=quizzes_by_chapter, user_scores=user_scores)
+
+@app.route("/attempt_quiz/<int:quiz_id>", methods=["GET", "POST"])
+def attempt_quiz(quiz_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    quiz = Quiz.query.get(quiz_id)
+    if not quiz:
+        flash("Quiz not found", "danger")
+        return redirect(url_for("user_dashboard"))
+
+    questions = Question.query.filter_by(quiz_id=quiz_id).all()
+
+    if request.method == "POST":
+        user_id = session["user_id"]
+        total_questions = len(questions)
+        correct_answers = 0
+        selected_answers = {}  # Dictionary to store user answers
+
+        for question in questions:
+            user_answer = request.form.get(f"question_{question.id}")
+            if user_answer:
+                user_answer = int(user_answer)
+                selected_answers[str(question.id)] = user_answer  # Store selected answer
+                if user_answer == question.correct_option:
+                    correct_answers += 1
+
+        # Convert selected answers to JSON format
+        import json
+        selected_answers_str = json.dumps(selected_answers)
+
+        # Check if the user already has a score for this quiz
+        existing_score = Score.query.filter_by(user_id=user_id, quiz_id=quiz_id).first()
+
+        if existing_score:
+            # Update existing score with the latest attempt
+            existing_score.total_scored = correct_answers
+            existing_score.total_questions = total_questions
+            existing_score.selected_answers = selected_answers_str
+            existing_score.time_stamp_of_attempt = datetime.utcnow()
+        else:
+            # Create a new score record
+            new_score = Score(
+                user_id=user_id,
+                quiz_id=quiz_id,
+                total_scored=correct_answers,
+                total_questions=total_questions,
+                selected_answers=selected_answers_str
+            )
+            db.session.add(new_score)
+
+        db.session.commit()
+
+        return redirect(url_for("quiz_results", quiz_id=quiz_id))
+
+    return render_template("attempt_quiz.html", quiz=quiz, questions=questions, chapter=quiz.chapter)
+
+@app.route("/submit_quiz/<int:quiz_id>", methods=["POST"])
+def submit_quiz(quiz_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+    quiz = Quiz.query.get(quiz_id)
+
+    if not quiz:
+        flash("Quiz not found", "danger")
+        return redirect(url_for("user_dashboard"))
+
+    total_questions = len(quiz.questions)
+    correct_answers = 0
+    selected_answers = {}  # Dictionary to store user-selected answers
+
+    for question in quiz.questions:
+        user_answer = request.form.get(f"question_{question.id}")
+
+        if user_answer:
+            user_answer = int(user_answer)
+            selected_answers[str(question.id)] = user_answer  # Store answer
+            if user_answer == question.correct_option:
+                correct_answers += 1
+
+    # Convert selected answers dictionary to string (JSON format)
+    import json
+    selected_answers_str = json.dumps(selected_answers)
+
+    # Check if the user already has a score for this quiz
+    existing_score = Score.query.filter_by(user_id=user_id, quiz_id=quiz_id).first()
+
+    if existing_score:
+        # Update the existing score with the latest attempt
+        existing_score.total_scored = correct_answers
+        existing_score.total_questions = total_questions
+        existing_score.selected_answers = selected_answers_str
+        existing_score.time_stamp_of_attempt = datetime.utcnow()
+    else:
+        # Create a new score record
+        new_score = Score(
+            user_id=user_id,
+            quiz_id=quiz_id,
+            total_scored=correct_answers,
+            total_questions=total_questions,
+            selected_answers=selected_answers_str
+        )
+        db.session.add(new_score)
+
+    db.session.commit()
+    
+    return redirect(url_for("quiz_results", quiz_id=quiz_id))
+
+
+
+@app.route("/quiz_results/<int:quiz_id>")
+def quiz_results(quiz_id):
+    if "user_id" not in session or session["role"] != "user":
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+    score_record = Score.query.filter_by(user_id=user_id, quiz_id=quiz_id).order_by(Score.time_stamp_of_attempt.desc()).first()
+
+    if not score_record:
+        flash("You have not attempted this quiz!", "danger")
+        return redirect(url_for("view_quizzes"))
+
+    quiz = Quiz.query.get(quiz_id)
+    selected_answers = score_record.get_selected_answers()
+
+    return render_template(
+        "quiz_results.html", 
+        quiz=quiz, 
+        score=score_record.total_scored, 
+        total_questions=score_record.total_questions,
+        selected_answers=selected_answers
+    )
+
 # ====================== MAIN ======================
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
+    initialize_admin()  # Ensure admin is created before running
     app.run(debug=True)
+

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Quizzes for {{ subject.name }}</title>
+</head>
+<body>
+    <h2>{{ subject.name }}</h2>
+    <p>{{ subject.description }}</p>
+
+    <h3>Chapters:</h3>
+    {% if chapters %}
+        <ul>
+            {% for chapter in chapters %}
+                <li>
+                    <strong>{{ chapter.name }}</strong> - {{ chapter.description }}
+                    <h4>Quizzes:</h4>
+                    {% if quizzes_by_chapter[chapter.id] %}
+                        <ul>
+                            {% for quiz in quizzes_by_chapter[chapter.id] %}
+                            <li>
+                                <a href="{{ url_for('attempt_quiz', quiz_id=quiz.id) }}">
+                                    Attempt Quiz ({{ quiz.date_of_quiz.strftime('%Y-%m-%d') }})
+                                </a>
+                                
+                                {% if user_scores.get(quiz.id) is not none %}
+                                    <p>Your Last Score: {{ user_scores[quiz.id] }} / {{ quiz.questions|length }}</p>
+                                {% else %}
+                                    <p>You haven't attempted this quiz yet.</p>
+                                {% endif %}
+                            </li>
+                            
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No quizzes available for this chapter.</p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No chapters available for this subject.</p>
+    {% endif %}
+
+    <p><a href="{{ url_for('user_dashboard') }}">Back to Dashboard</a></p>
+</body>
+</html>
