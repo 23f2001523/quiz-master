@@ -494,6 +494,8 @@ def quiz_results(quiz_id):
         return redirect(url_for("login"))
 
     user_id = session["user_id"]
+    
+    # Fetch the user's latest score for this quiz
     score_record = Score.query.filter_by(user_id=user_id, quiz_id=quiz_id).order_by(Score.time_stamp_of_attempt.desc()).first()
 
     if not score_record:
@@ -501,7 +503,7 @@ def quiz_results(quiz_id):
         return redirect(url_for("view_quizzes"))
 
     quiz = Quiz.query.get(quiz_id)
-    selected_answers = score_record.get_selected_answers()
+    selected_answers = score_record.get_selected_answers()  # Retrieve JSON-stored answers
 
     return render_template(
         "quiz_results.html", 
@@ -510,6 +512,35 @@ def quiz_results(quiz_id):
         total_questions=score_record.total_questions,
         selected_answers=selected_answers
     )
+
+@app.route("/quiz_summary")
+def quiz_summary():
+    if "user_id" not in session or session["role"] != "user":
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+
+    # Get all scores for this user
+    scores = Score.query.filter_by(user_id=user_id).all()
+
+    # Organize scores by chapter
+    summary = {}
+    for score in scores:
+        quiz = Quiz.query.get(score.quiz_id)
+        chapter = Chapter.query.get(quiz.chapter_id)
+
+        if chapter.id not in summary:
+            summary[chapter.id] = {
+                "chapter_name": chapter.name,
+                "total_score": 0,
+                "total_questions": 0
+            }
+
+        summary[chapter.id]["total_score"] += score.total_scored
+        summary[chapter.id]["total_questions"] += score.total_questions
+
+    return render_template("quiz_summary.html", summary=summary)
+
 
 # ====================== MAIN ======================
 if __name__ == "__main__":

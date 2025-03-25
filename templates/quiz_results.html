@@ -12,25 +12,29 @@
     <hr>
 
     {% for question in quiz.questions %}
-        <div>
-            <p><strong>Q{{ loop.index }}: {{ question.question_statement }}</strong></p>
-            <p><strong>Your Answer:</strong> 
-                {% set user_answer = selected_answers.get(question.id | string) %}
-                {{ question['option' + user_answer|string] if user_answer else "Not Answered" }}
-            </p>
-            <p><strong>Correct Answer:</strong> {{ question['option' + question.correct_option|string] }}</p>            
-            
-            {% if user_answer and user_answer == question.correct_option %}
-                <p style="color: green;"><strong>Correct!</strong></p>
-            {% else %}
-                <p style="color: red;"><strong>Incorrect.</strong></p>
-            {% endif %}
-        </div>
-        <hr>
-    {% endfor %}
+    <div>
+        <p><strong>Q{{ loop.index }}: {{ question.question_statement }}</strong></p>
 
-    <h3>Total Score: {{ score }}/{{ total_questions }}</h3>
+        <p><strong>Your Answer:</strong> 
+            {% set user_answer = selected_answers.get(question.id|string) %}
+            {{ question['option' + user_answer|string] if user_answer else "Not Answered" }}
+        </p>
 
-    <a href="{{ url_for('view_quizzes', subject_id=quiz.chapter.subject_id) }}">Back to Quizzes</a>
+        <p><strong>Correct Answer:</strong> {{ question['option' + question.correct_option|string] }}</p>            
+
+        {% if user_answer and user_answer == question.correct_option %}
+            <p style="color: green;"><strong>Correct!</strong></p>
+        {% else %}
+            <p style="color: red;"><strong>Incorrect.</strong></p>
+        {% endif %}
+    </div>
+    <hr>
+{% endfor %}
+
+<h3>Total Score: {{ score }}/{{ total_questions }}</h3>
+
+<a href="{{ url_for('quiz_summary') }}">View Summary Report</a>
+<a href="{{ url_for('view_quizzes', subject_id=quiz.chapter.subject_id) }}">Back to Quizzes</a>
+
 </body>
 </html>
