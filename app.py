@@ -542,7 +542,7 @@ def quiz_summary():
     return render_template("quiz_summary.html", summary=summary)
 
 
-# ====================== MAIN ======================
+# ====================== MAIN =======================
 if __name__ == "__main__":
     initialize_admin()  # Ensure admin is created before running
     app.run(debug=True)
