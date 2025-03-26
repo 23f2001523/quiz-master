@@ -5,6 +5,11 @@
 </head>
 <body>
     <h2>Welcome, {{ user.full_name }}!</h2>
+    <form action="{{ url_for('user_search') }}" method="GET">
+        <input type="text" name="query" placeholder="Search subjects or quizzes" required>
+        <button type="submit">Search</button>
+    </form>
+    
 
     <p>Select a subject to attempt quizzes.</p>
 

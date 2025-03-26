@@ -541,6 +541,76 @@ def quiz_summary():
 
     return render_template("quiz_summary.html", summary=summary)
 
+@app.route("/admin_search", methods=["GET"])
+def admin_search():
+    if "user_id" not in session or session["role"] != "admin":
+        return redirect(url_for("login"))
+
+    query = request.args.get("query", "").strip()
+
+    if not query:
+        flash("Please enter a search term.", "warning")
+        return redirect(url_for("admin_dashboard"))
+
+    # Search users (Admins can delete them)
+    users = User.query.filter(User.full_name.ilike(f"%{query}%") | User.email.ilike(f"%{query}%")).all()
+
+    # Search subjects
+    subjects = Subject.query.filter(Subject.name.ilike(f"%{query}%")).all()
+
+    # Search chapters
+    chapters = Chapter.query.filter(Chapter.name.ilike(f"%{query}%")).all()
+
+    # Search quizzes
+    quizzes = Quiz.query.filter(Quiz.remarks.ilike(f"%{query}%")).all()
+
+    # Search questions
+    questions = Question.query.filter(Question.question_statement.ilike(f"%{query}%")).all()
+
+    return render_template("admin_search_results.html", users=users, subjects=subjects, chapters=chapters, quizzes=quizzes, questions=questions)
+
+@app.route("/admin/users/delete/<int:user_id>")
+def delete_user(user_id):
+    if "user_id" not in session or session["role"] != "admin":
+        return redirect(url_for("login"))
+
+    user = User.query.get(user_id)
+
+    if not user:
+        flash("User not found.", "danger")
+        return redirect(url_for("admin_dashboard"))
+
+    # ✅ Delete all scores associated with the user
+    Score.query.filter_by(user_id=user_id).delete()
+
+    # ✅ Now delete the user
+    db.session.delete(user)
+    db.session.commit()
+
+    flash("User and related scores deleted successfully.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+
+@app.route("/user_search", methods=["GET"])
+def user_search():
+    if "user_id" not in session or session["role"] != "user":
+        return redirect(url_for("login"))
+
+    query = request.args.get("query", "").strip()
+
+    if not query:
+        flash("Please enter a search term.", "warning")
+        return redirect(url_for("user_dashboard"))
+
+    # Search subjects
+    subjects = Subject.query.filter(Subject.name.ilike(f"%{query}%")).all()
+
+    # Search quizzes (based on remarks)
+    quizzes = Quiz.query.filter(Quiz.remarks.ilike(f"%{query}%")).all()
+
+    return render_template("user_search_results.html", subjects=subjects, quizzes=quizzes)
+
+
 
 # ====================== MAIN =======================
 if __name__ == "__main__":
