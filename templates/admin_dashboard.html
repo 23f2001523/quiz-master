@@ -1,25 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h2>Welcome, Admin!</h2>
     
-    <p>Here you can manage subjects, quizzes, and users.</p>
+    <p>Here you can search or manage subjects and users.</p>
 
     <form action="{{ url_for('admin_search') }}" method="GET">
         <input type="text" name="query" placeholder="Search users, subjects, quizzes, or questions" required>
-        <button type="submit">Search</button>
+        <button class="button" type="submit">Search</button>
     </form>
     
 
     <ul>
-        <li><a href="{{ url_for('manage_subjects') }}">Manage Subjects</a></li>
-        <li><a href="{{ url_for('view_users') }}">View Users</a></li>
-        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        <li><a class="button" href="{{ url_for('manage_subjects') }}">Manage Subjects</a></li>
+        <li><a class="button" href="{{ url_for('view_users') }}">View Users</a></li>
+        <li><a class="button" href="{{ url_for('logout') }}">Logout</a></li>
     </ul>
 </body>
-</html>

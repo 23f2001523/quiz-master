@@ -1,12 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h2>Login</h2>
 
-    {% if error %}  <!-- Jinja2: Display error messages -->
+    {% if error %}
         <p style="color: red;">{{ error }}</p>
     {% endif %}
 
@@ -17,9 +16,8 @@
         <label>Password:</label>
         <input type="password" name="password" required><br>
 
-        <button type="submit">Login</button>
+        <button class="button" type="submit">Login</button>
     </form>
 
-    <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+    <p>Don't have an account? <a class="button" href="{{ url_for('register') }}">Register here</a></p>
 </body>
-</html>

@@ -1,23 +1,33 @@
+<head>
+    <title>Manage Quizzes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
 <h2>Manage Quizzes for {{ chapter.name }}</h2>
 
-<a href="{{ url_for('manage_chapters', subject_id=chapter.subject_id) }}">← Back to Chapters</a> |
-<a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+<a class="button" href="{{ url_for('manage_chapters', subject_id=chapter.subject_id) }}">← Back to Chapters</a>
+<a class="button" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
 
+<h3>Create Quiz:</h3>
 <form method="POST">
-    <input type="date" name="date_of_quiz" required>
-    <textarea name="remarks" placeholder="Remarks"></textarea>
-    <button type="submit">Add Quiz</button>
+    <label>Date:</label>
+    <input type="date" name="date_of_quiz" required><br><br>
+    <label>Description:</label><br>
+    <textarea name="remarks" placeholder="Remarks"></textarea><br>
+    <button class="button" type="submit">Add Quiz</button>
 </form>
 
-<ul>
+<h3>Existing Quizzes:</h3>
+<ul style="list-style-type: none;">
     {% for quiz in quizzes %}
         <li>
-            <strong>Quiz Date: {{ quiz.date_of_quiz }}</strong>
-            <p>{{ quiz.remarks }}</p> <!-- Display Quiz Remarks -->
-            <a href="{{ url_for('manage_questions', quiz_id=quiz.id) }}">View Questions</a>
-            <a href="{{ url_for('edit_quiz', quiz_id=quiz.id) }}">Edit</a>
-            <a href="{{ url_for('delete_quiz', quiz_id=quiz.id) }}" onclick="return confirm('Are you sure?')">Delete</a>
-        </li>
+            <fieldset>
+            <legend><strong>Quiz Date: {{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}</strong></legend>
+            <p>{{ quiz.remarks }}</p>
+            <a class="button" href="{{ url_for('manage_questions', quiz_id=quiz.id) }}">View Questions</a>
+            <a class="button" href="{{ url_for('edit_quiz', quiz_id=quiz.id) }}">Edit</a>
+            <a class="button" href="{{ url_for('delete_quiz', quiz_id=quiz.id) }}" onclick="return confirm('Are you sure?')">Delete</a>
+            </fieldset>
+        </li><br>
     {% endfor %}
 </ul>
 

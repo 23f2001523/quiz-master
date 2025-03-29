@@ -1,12 +1,17 @@
+<head>
+    <title>View Users</title>
+    <head><link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"></head>
+</head>
 <h2>All Users</h2>
 
-<a href="{{ url_for('admin_dashboard') }}">← Back to Admin Dashboard</a>
+<a class="button" href="{{ url_for('admin_dashboard') }}">← Back to Admin Dashboard</a>
 
-<table border="1">
+<table border="1" style="margin-top: 10px;">
     <tr>
         <th>Name</th>
         <th>Email</th>
         <th>Role</th>
+        <th>Total Percentage</th>
         <th>Action</th>
     </tr>
     {% for user in users %}
@@ -14,6 +19,13 @@
             <td>{{ user.full_name }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.role }}</td>
+            <td>
+                {% if user.total_percentage is not none %}
+                    {{ user.total_percentage | round(2) }}%
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
             <td>
                 {% if user.role != "admin" %}  <!-- Prevent deleting admins -->
                     <a href="{{ url_for('delete_user', user_id=user.id) }}" 

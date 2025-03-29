@@ -1,7 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <title>Quizzes for {{ subject.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h2>{{ subject.name }}</h2>
@@ -13,20 +12,29 @@
             {% for chapter in chapters %}
                 <li>
                     <strong>{{ chapter.name }}</strong> - {{ chapter.description }}
-                    <h4>Quizzes:</h4>
                     {% if quizzes_by_chapter[chapter.id] %}
-                        <ul>
+                        <ul style="list-style-type: none;"><br>
                             {% for quiz in quizzes_by_chapter[chapter.id] %}
                             <li>
-                                <a href="{{ url_for('attempt_quiz', quiz_id=quiz.id) }}">
-                                    Attempt Quiz ({{ quiz.date_of_quiz.strftime('%Y-%m-%d') }})
-                                </a>
+                                <fieldset>
+                                {% if quiz.date_of_quiz <= now %}
+                                    <legend> {{ quiz.remarks }}</legend>
+                                    <a class="button" href="{{ url_for('attempt_quiz', quiz_id=quiz.id) }}">
+                                        Attempt Quiz ({{ quiz.date_of_quiz.strftime('%Y-%m-%d') }})
+                                    </a>
                                 
-                                {% if user_scores.get(quiz.id) is not none %}
-                                    <p>Your Last Score: {{ user_scores[quiz.id] }} / {{ quiz.questions|length }}</p>
+                                    {% if user_scores.get(quiz.id) is not none %}
+                                        <p>Your Last Score: {{ user_scores[quiz.id] }} / {{ quiz.questions|length }}</p>
+                                    {% else %}
+                                        <p>You haven't attempted this quiz yet.</p>
+                                    {% endif %}
                                 {% else %}
-                                    <p>You haven't attempted this quiz yet.</p>
+                                    <span style="color: gray;">
+                                        <p> {{ quiz.remarks }}</p>
+                                        Quiz Starts at {{ quiz.date_of_quiz.strftime('%Y-%m-%d %H:%M') }}
+                                    </span>
                                 {% endif %}
+                                </fieldset><br>
                             </li>
                             
                             {% endfor %}
@@ -41,6 +49,5 @@
         <p>No chapters available for this subject.</p>
     {% endif %}
 
-    <p><a href="{{ url_for('user_dashboard') }}">Back to Dashboard</a></p>
+    <p><a class="button" href="{{ url_for('user_dashboard') }}">Back to Dashboard</a></p>
 </body>
-</html>

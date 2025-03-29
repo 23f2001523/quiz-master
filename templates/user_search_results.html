@@ -1,28 +1,37 @@
+<head>
+    <title>Search Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
 <h2>Search Results</h2>
 
 {% if subjects %}
-    <h3>Subjects</h3>
-    <ul>
+    <h3>Subjects:</h3>
+    <ul style="list-style-type: none;">
         {% for subject in subjects %}
             <li>
-                <strong>{{ subject.name }}</strong>
+                <fieldset>
+                <legend><strong>{{ subject.name }}</strong></legend>
                 <p>{{ subject.description }}</p>
-                <a href="{{ url_for('view_quizzes', subject_id=subject.id) }}">View Quizzes</a>
-            </li>
+                <a class="button" href="{{ url_for('view_quizzes', subject_id=subject.id) }}">View Quizzes</a>
+                </fieldset>
+            </li><br>
         {% endfor %}
     </ul>
 {% endif %}
 
 {% if quizzes %}
-    <h3>Quizzes</h3>
-    <ul>
+    <h3>Quizzes:</h3>
+    <ul style="list-style-type: none;">
         {% for quiz in quizzes %}
             <li>
-                <strong>Quiz:</strong> {{ quiz.remarks }}
-                <a href="{{ url_for('attempt_quiz', quiz_id=quiz.id) }}">Attempt Quiz</a>
-            </li>
+                <fieldset>
+                <legend><strong>Quiz:</strong></legend> 
+                <p>{{ quiz.remarks }}</p>
+                <a class="button" href="{{ url_for('attempt_quiz', quiz_id=quiz.id) }}">Attempt Quiz</a>
+                </fieldset>
+            </li><br>
         {% endfor %}
     </ul>
 {% endif %}
 
-<a href="{{ url_for('user_dashboard') }}">Back to Dashboard</a>
+<a class="button" href="{{ url_for('user_dashboard') }}">Back to Dashboard</a>

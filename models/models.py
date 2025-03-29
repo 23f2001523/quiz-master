@@ -2,16 +2,17 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import json
 
-db = SQLAlchemy()  # <-- Do not bind it to an app here
+db = SQLAlchemy()  # Not binding it to the app yet
 
+# User Table
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True, nullable=False)  # Used for login
     password = db.Column(db.String(60), nullable=False)
     full_name = db.Column(db.String(100), nullable=False)
     qualification = db.Column(db.String(100), nullable=True)
-    dob = db.Column(db.String(10), nullable=True)  # Format: YYYY-MM-DD
-    role = db.Column(db.String(10), nullable=False, default='user')
+    dob = db.Column(db.String(10), nullable=True)                   # Format: YYYY-MM-DD
+    role = db.Column(db.String(10), nullable=False, default='user') # admin or user
 
 # Subject Table
 class Subject(db.Model):
@@ -22,14 +23,14 @@ class Subject(db.Model):
 # Chapter Table
 class Chapter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=False)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=False) # Link to subject
     name = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text, nullable=True)
 
 # Quiz Table
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    chapter_id = db.Column(db.Integer, db.ForeignKey('chapter.id'), nullable=False)
+    chapter_id = db.Column(db.Integer, db.ForeignKey('chapter.id'), nullable=False) # Link to Chapter
     date_of_quiz = db.Column(db.DateTime, nullable=False)
     remarks = db.Column(db.String(255), nullable=True)
 
@@ -40,7 +41,7 @@ class Quiz(db.Model):
 # Question Table
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
+    quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False) # Link to Quiz
     question_statement = db.Column(db.Text, nullable=False)
     option1 = db.Column(db.String(255), nullable=False)
     option2 = db.Column(db.String(255), nullable=False)
@@ -51,8 +52,8 @@ class Question(db.Model):
 # Score Table
 class Score(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False) # Link to Quiz
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # Link to User
     time_stamp_of_attempt = db.Column(db.DateTime, default=datetime.utcnow)
     total_scored = db.Column(db.Integer, nullable=False)
     total_questions = db.Column(db.Integer, nullable=False)

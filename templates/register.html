@@ -1,7 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h2>User Registration</h2>
@@ -26,9 +25,8 @@
         <label>Date of Birth:</label>
         <input type="date" name="dob"><br>
 
-        <button type="submit">Register</button>
+        <button class="button" type="submit">Register</button>
     </form>
 
-    <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+    <p>Already have an account? <a class="button" href="{{ url_for('login') }}">Login here</a></p>
 </body>
-</html>

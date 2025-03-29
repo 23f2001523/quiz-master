@@ -1,21 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <title>Manage Questions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
 
     <!-- Navigation Links -->
-    <a href="{{ url_for('manage_quizzes', chapter_id=quiz.chapter_id) }}">← Back to Quizzes</a> |
-    <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+    <a class="button" href="{{ url_for('manage_quizzes', chapter_id=quiz.chapter_id) }}">← Back to Quizzes</a>
+    <a class="button" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
 
-    <h2>Manage Questions for Quiz: {{ quiz.id }}</h2>
-    <p>{{ quiz.remarks }}</p> <!-- Display Quiz Remarks -->
+    <h2>Manage Questions for Quiz: {{ quiz.remarks }}</h2>
 
     <!-- Add Question Form -->
     <h3>Add a New Question</h3>
     <form method="POST">
-        <textarea name="question_statement" placeholder="Question Statement" required></textarea><br>
+        <label>Question Statement:</label><br>
+        <textarea name="question_statement" placeholder="Question Statement" required></textarea><br><br>
         
         <label>Option 1:</label>
         <input type="text" name="option1" required><br>
@@ -32,7 +31,7 @@
         <label>Correct Option (1-4):</label>
         <input type="number" name="correct_option" placeholder="Correct Option (1-4)" min="1" max="4" required><br>
 
-        <button type="submit">Add Question</button>
+        <button class="button" type="submit">Add Question</button>
     </form>
 
     <!-- List of Questions -->
@@ -40,13 +39,11 @@
     <ul>
         {% for question in questions %}
             <li>
-                {{ question.question_statement }}  
-                (Correct: Option {{ question.correct_option }})  
-                <a href="{{ url_for('edit_question', question_id=question.id) }}">Edit</a>
-                <a href="{{ url_for('delete_question', question_id=question.id) }}" onclick="return confirm('Are you sure?')">Delete</a>
+                {{ question.question_statement }}    
+                <a class="button" href="{{ url_for('edit_question', question_id=question.id) }}">Edit</a>
+                <a class="button" href="{{ url_for('delete_question', question_id=question.id) }}" onclick="return confirm('Are you sure?')">Delete</a>
             </li>
         {% endfor %}
     </ul>
 
 </body>
-</html>

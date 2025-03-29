@@ -1,70 +1,84 @@
+<head>
+    <title>Search Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
 <h2>Search Results</h2>
 
 {% if users %}
-    <h3>Users</h3>
+    <fieldset>
+    <legend><h3>Users</h3></legend>
     <ul>
         {% for user in users %}
             <li>
                 {{ user.full_name }} ({{ user.email }})
-                <a href="{{ url_for('delete_user', user_id=user.id) }}" 
+                <a class="button" href="{{ url_for('delete_user', user_id=user.id) }}" 
                    onclick="return confirm('Are you sure?')">
                    Delete
                 </a>
             </li>
         {% endfor %}
     </ul>
+    </fieldset>
 {% endif %}
 
 {% if subjects %}
-    <h3>Subjects</h3>
+    <fieldset>
+    <legend><h3>Subjects</h3></legend>
     <ul>
         {% for subject in subjects %}
             <li>
                 <strong>{{ subject.name }}</strong>
-                <a href="{{ url_for('edit_subject', subject_id=subject.id) }}">Edit</a>
-                <a href="{{ url_for('manage_chapters', subject_id=subject.id) }}">View Chapters</a>
+                <a class="button" href="{{ url_for('edit_subject', subject_id=subject.id) }}">Edit</a>
+                <a class="button" href="{{ url_for('manage_chapters', subject_id=subject.id) }}">View Chapters</a>
             </li>
         {% endfor %}
     </ul>
+    </fieldset>
 {% endif %}
 
 {% if chapters %}
-    <h3>Chapters</h3>
+    <fieldset>
+    <legend><h3>Chapters</h3></legend>
     <ul>
         {% for chapter in chapters %}
             <li>
                 <strong>{{ chapter.name }}</strong>
-                <a href="{{ url_for('edit_chapter', chapter_id=chapter.id) }}">Edit</a>
-                <a href="{{ url_for('manage_quizzes', chapter_id=chapter.id) }}">View Quizzes</a>
+                <a class="button" href="{{ url_for('edit_chapter', chapter_id=chapter.id) }}">Edit</a>
+                <a class="button" href="{{ url_for('manage_quizzes', chapter_id=chapter.id) }}">View Quizzes</a>
             </li>
         {% endfor %}
     </ul>
+    </fieldset>
 {% endif %}
 
 {% if quizzes %}
-    <h3>Quizzes</h3>
+    <fieldset>
+    <legend><h3>Quizzes</h3></legend>
     <ul>
         {% for quiz in quizzes %}
             <li>
                 <strong>Quiz ID:</strong> {{ quiz.id }} - {{ quiz.remarks }}
-                <a href="{{ url_for('edit_quiz', quiz_id=quiz.id) }}">Edit</a>
-                <a href="{{ url_for('manage_questions', quiz_id=quiz.id) }}">View Questions</a>
+                <a class="button" href="{{ url_for('edit_quiz', quiz_id=quiz.id) }}">Edit</a>
+                <a class="button" href="{{ url_for('manage_questions', quiz_id=quiz.id) }}">View Questions</a>
             </li>
         {% endfor %}
     </ul>
+    </fieldset>
 {% endif %}
 
 {% if questions %}
-    <h3>Questions</h3>
+    <fieldset>
+    <legend><h3>Questions</h3></legend>
     <ul>
         {% for question in questions %}
             <li>
                 {{ question.question_statement }}
-                <a href="{{ url_for('edit_question', question_id=question.id) }}">Edit</a>
+                <a class="button" href="{{ url_for('edit_question', question_id=question.id) }}">Edit</a>
             </li>
         {% endfor %}
     </ul>
+    </fieldset>
 {% endif %}
 
-<a href="{{ url_for('admin_dashboard') }}">Back to Admin Dashboard</a>
+<a class="button" href="{{ url_for('admin_dashboard') }}">Back to Admin Dashboard</a>
 

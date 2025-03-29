@@ -1,13 +1,18 @@
+<head>
+    <title>Edit Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
 <h2>Edit Quiz</h2>
 <form method="POST">
-    <label>Date of Quiz:</label>
-    <input type="date" name="date_of_quiz" value="{{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}" required>
+    <label>Date of Quiz:</label><br>
+    <input type="date" name="date_of_quiz" value="{{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}" required><br><br>
 
-    <label>Remarks:</label>
-    <textarea name="remarks">{{ quiz.remarks }}</textarea>
+    <label>Description:</label><br>
+    <textarea name="remarks">{{ quiz.remarks }}</textarea><br><br>
 
-    <button type="submit">Update Quiz</button>
+    <button class="button" type="submit">Update Quiz</button>
 </form>
 
-<a href="{{ url_for('manage_quizzes', chapter_id=quiz.chapter_id) }}">Back to Quizzes</a>
-<a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+<a class="button" href="{{ url_for('manage_quizzes', chapter_id=quiz.chapter_id) }}">Back to Quizzes</a>
+<a class="button" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>

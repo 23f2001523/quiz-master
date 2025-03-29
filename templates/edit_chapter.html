@@ -1,13 +1,17 @@
+<head>
+    <title>Edit Chapter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
 <h2>Edit Chapter</h2>
 <form method="POST">
-    <label>Chapter Name:</label>
-    <input type="text" name="name" value="{{ chapter.name }}" required>
+    <label>Chapter Name:</label><br>
+    <input type="text" name="name" value="{{ chapter.name }}" required><br><br>
 
-    <label>Description:</label>
-    <textarea name="description">{{ chapter.description }}</textarea>
+    <label>Description:</label><br>
+    <textarea name="description">{{ chapter.description }}</textarea><br>
 
-    <button type="submit">Update Chapter</button>
+    <button class="button" type="submit">Update Chapter</button>
 </form>
 
-<a href="{{ url_for('manage_chapters', subject_id=chapter.subject_id) }}">Back to Chapters</a>
-<a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+<a class="button" href="{{ url_for('manage_chapters', subject_id=chapter.subject_id) }}">Back to Chapters</a>
+<a class="button" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>

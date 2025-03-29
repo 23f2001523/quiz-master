@@ -1,23 +1,36 @@
+<head>
+    <title>Manage Chapters</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
 <h2>Manage Chapters for {{ subject.name }}</h2>
 
-<a href="{{ url_for('manage_subjects') }}">← Back to Subjects</a> |
-<a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+<a class="button" href="{{ url_for('manage_subjects') }}">← Back to Subjects</a>
+<a class="button" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
 
+<h3>Create Chapter:</h3>
 <form method="POST">
-    <input type="text" name="name" placeholder="Chapter Name" required>
-    <textarea name="description" placeholder="Description"></textarea>
-    <button type="submit">Add Chapter</button>
+    <label>Chapter Name:</label><br>
+    <input type="text" name="name" placeholder="Chapter Name" required><br><br>
+    <label>Description:</label><br>
+    <textarea name="description" placeholder="Description"></textarea><br><br>
+    <button class="button" type="submit">Add Chapter</button>
 </form>
 
-<ul>
+<br>
+<h3>Existing Chapters:</h3>
+<ul style="list-style-type: none;">
     {% for chapter in chapters %}
         <li>
-            <strong>{{ chapter.name }}</strong>
+            <fieldset>
+            <legend><strong>{{ chapter.name }}</strong></legend>
             <p>{{ chapter.description }}</p> <!-- Display Chapter Description -->
-            <a href="{{ url_for('manage_quizzes', chapter_id=chapter.id) }}">View Quizzes</a>
-            <a href="{{ url_for('edit_chapter', chapter_id=chapter.id) }}">Edit</a>
-            <a href="{{ url_for('delete_chapter', chapter_id=chapter.id) }}" onclick="return confirm('Are you sure?')">Delete</a>
+            <a class="button" href="{{ url_for('manage_quizzes', chapter_id=chapter.id) }}">View Quizzes</a>
+            <a class="button" href="{{ url_for('edit_chapter', chapter_id=chapter.id) }}">Edit</a>
+            <a class="button" href="{{ url_for('delete_chapter', chapter_id=chapter.id) }}" onclick="return confirm('Are you sure?')">Delete</a>
+            </fieldset>
         </li>
+        <br>
     {% endfor %}
 </ul>
 

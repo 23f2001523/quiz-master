@@ -1,18 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <title>Quiz Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h2>Quiz Results</h2>
     
-    <p><strong>Quiz Date:</strong> {{ quiz.date_of_quiz.strftime('%Y-%m-%d') if quiz.date_of_quiz else "N/A" }}</p>
-    <p><strong>Remarks:</strong> {{ quiz.remarks }}</p>
+    <p><strong>Quiz Start Date:</strong> {{ quiz.date_of_quiz.strftime('%Y-%m-%d') if quiz.date_of_quiz else "N/A" }}</p>
+    <p><strong>Description:</strong> {{ quiz.remarks }}</p>
 
-    <hr>
 
     {% for question in quiz.questions %}
-    <div>
+    <fieldset>
         <p><strong>Q{{ loop.index }}: {{ question.question_statement }}</strong></p>
 
         <p><strong>Your Answer:</strong> 
@@ -25,16 +23,14 @@
         {% if user_answer and user_answer == question.correct_option %}
             <p style="color: green;"><strong>Correct!</strong></p>
         {% else %}
-            <p style="color: red;"><strong>Incorrect.</strong></p>
+            <p style="color: red;"><strong>Incorrect!</strong></p>
         {% endif %}
-    </div>
-    <hr>
+    </fieldset><br>
 {% endfor %}
 
 <h3>Total Score: {{ score }}/{{ total_questions }}</h3>
 
-<a href="{{ url_for('quiz_summary') }}">View Summary Report</a>
-<a href="{{ url_for('view_quizzes', subject_id=quiz.chapter.subject_id) }}">Back to Quizzes</a>
+<a class="button" href="{{ url_for('quiz_summary') }}">View Summary Report</a>
+<a class="button" href="{{ url_for('view_quizzes', subject_id=quiz.chapter.subject_id) }}">Back to Quizzes</a>
 
 </body>
-</html>

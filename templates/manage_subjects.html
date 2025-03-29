@@ -1,22 +1,33 @@
+<head>
+    <title>Manage Subjects</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
 <h2>Manage Subjects</h2>
 
-<a href="{{ url_for('admin_dashboard') }}">← Back to Admin Dashboard</a>
+<a class="button" href="{{ url_for('admin_dashboard') }}">← Back to Admin Dashboard</a>
 
 <form method="POST">
-    <input type="text" name="name" placeholder="Subject Name" required>
-    <textarea name="description" placeholder="Description"></textarea>
-    <button type="submit">Add Subject</button>
+    <h3>Create Subject:</h3>
+    <label>Subject Name:</label><br>
+    <input type="text" name="name" placeholder="Subject Name" required><br><br>
+    <label>Description:</label><br>
+    <textarea name="description" placeholder="Description"></textarea><br><br>
+    <button class="button" type="submit">Add Subject</button>
 </form>
 
-<ul>
+<h3>Existing Subjects:</h3>
+<ul style="list-style-type: none;">
     {% for subject in subjects %}
         <li>
-            <strong>{{ subject.name }}</strong>
+            <fieldset>
+            <legend><strong>{{ subject.name }}</strong></legend>
             <p>{{ subject.description }}</p> <!-- Display Description -->
-            <a href="{{ url_for('manage_chapters', subject_id=subject.id) }}">View Chapters</a>
-            <a href="{{ url_for('edit_subject', subject_id=subject.id) }}">Edit</a>
-            <a href="{{ url_for('delete_subject', subject_id=subject.id) }}" onclick="return confirm('Are you sure?')">Delete</a>
+            <a class="button" href="{{ url_for('manage_chapters', subject_id=subject.id) }}">View Chapters</a>
+            <a class="button" href="{{ url_for('edit_subject', subject_id=subject.id) }}">Edit</a>
+            <a class="button" href="{{ url_for('delete_subject', subject_id=subject.id) }}" onclick="return confirm('Are you sure?')">Delete</a>
+        </fieldset>
         </li>
+        <br>
     {% endfor %}
 </ul>
 
