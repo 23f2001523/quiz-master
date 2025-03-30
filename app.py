@@ -84,6 +84,11 @@ def login():
 
     return render_template("login.html")
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
 # ====================== DASHBOARDS ======================
 
 @app.route("/admin_dashboard")
@@ -128,8 +133,15 @@ def delete_subject(subject_id):
         return redirect(url_for("login"))
 
     subject = Subject.query.get(subject_id)
-    db.session.delete(subject)
-    db.session.commit()
+    if subject:
+        for chapter in subject.chapters:
+            for quiz in chapter.quizzes:
+                Score.query.filter_by(quiz_id=quiz.id).delete()  # Delete scores
+                Question.query.filter_by(quiz_id=quiz.id).delete()  # Delete questions
+                db.session.delete(quiz)  # Delete quiz
+            db.session.delete(chapter)  # Delete chapter
+        db.session.delete(subject)  # Delete subject
+        db.session.commit()
     return redirect(url_for("manage_subjects"))
 
 # Manage Chapters
@@ -157,8 +169,20 @@ def delete_chapter(chapter_id):
         return redirect(url_for("login"))
 
     chapter = Chapter.query.get(chapter_id)
-    db.session.delete(chapter)
-    db.session.commit()
+    if chapter:
+        # Get all quizzes linked to the chapter
+        quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
+        for quiz in quizzes:
+            # Delete all scores linked to the quiz
+            Score.query.filter_by(quiz_id=quiz.id).delete()
+            # Delete all questions linked to the quiz
+            Question.query.filter_by(quiz_id=quiz.id).delete()
+            # Delete the quiz
+            db.session.delete(quiz)
+
+        # Delete the chapter
+        db.session.delete(chapter)
+        db.session.commit()
     return redirect(url_for("manage_subjects"))
 
 # Manage Quizzes
@@ -193,8 +217,14 @@ def delete_quiz(quiz_id):
         return redirect(url_for("login"))
 
     quiz = Quiz.query.get(quiz_id)
-    db.session.delete(quiz)
-    db.session.commit()
+    if quiz:
+        # Delete all scores linked to the quiz
+        Score.query.filter_by(quiz_id=quiz.id).delete()
+        # Delete all questions linked to the quiz
+        Question.query.filter_by(quiz_id=quiz.id).delete()
+        # Delete the quiz
+        db.session.delete(quiz)
+        db.session.commit()
     return redirect(url_for("manage_subjects"))
 
 # Manage Questions
@@ -235,8 +265,32 @@ def delete_question(question_id):
         return redirect(url_for("login"))
 
     question = Question.query.get(question_id)
-    db.session.delete(question)
-    db.session.commit()
+    
+    if question:
+        quiz_id = question.quiz_id
+        
+        # Delete the question
+        db.session.delete(question)
+        db.session.commit()
+        
+        # Get the updated number of questions in the quiz
+        total_questions = Question.query.filter_by(quiz_id=quiz_id).count()
+        
+        # Update all scores for this quiz
+        scores = Score.query.filter_by(quiz_id=quiz_id).all()
+        for score in scores:
+            if total_questions > 0:
+                # Adjust the score proportionally
+                old_total = score.total_questions
+                if old_total > 0:
+                    score.total_scored = round((score.total_scored / old_total) * total_questions)
+                score.total_questions = total_questions
+            else:
+                # If there are no more questions, reset scores
+                score.total_scored = 0
+                score.total_questions = 0
+
+        db.session.commit()
     return redirect(url_for("manage_questions", quiz_id=question.quiz_id))
 
 # Edit Subject
@@ -317,7 +371,6 @@ def edit_question(question_id):
     return render_template("edit_question.html", question=question)
 
 
-
 # View Users
 @app.route("/admin/users")
 def view_users():
@@ -337,12 +390,7 @@ def view_users():
 
     return render_template("view_users.html", users=users)
 
-#================================= LOGOUT ========================================
 
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("login"))
 
 #============================= USER ROUTES ========================================
 
@@ -389,6 +437,9 @@ def attempt_quiz(quiz_id):
 
     questions = Question.query.filter_by(quiz_id=quiz_id).all()
 
+    if not questions:
+        return redirect(url_for("view_quizzes"))
+    
     if request.method == "POST":
         user_id = session["user_id"]
         total_questions = len(questions)
@@ -447,6 +498,10 @@ def quiz_results(quiz_id):
         return redirect(url_for("view_quizzes"))
 
     quiz = Quiz.query.get(quiz_id)
+
+    if score_record.total_questions == 0:
+        return redirect(url_for("view_quizzes"))
+    
     selected_answers = score_record.get_selected_answers()  # Retrieve JSON-stored answers
 
     return render_template(
@@ -472,8 +527,18 @@ def quiz_summary():
     summary = {}
     for score in scores:
         quiz = Quiz.query.get(score.quiz_id)
-        chapter = Chapter.query.get(quiz.chapter_id)
+        if not quiz:  # Quiz was deleted
+            continue
 
+        chapter = Chapter.query.get(quiz.chapter_id)
+        if not chapter:  # Chapter was deleted
+            continue
+
+        # Ensure quiz has at least one question
+        question_count = Question.query.filter_by(quiz_id=quiz.id).count()
+        if question_count == 0:
+            continue  # Skip quizzes with no question
+        
         if chapter.id not in summary:
             summary[chapter.id] = {
                 "chapter_name": chapter.name,

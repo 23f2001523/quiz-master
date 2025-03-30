@@ -20,6 +20,8 @@ class Subject(db.Model):
     name = db.Column(db.String(150), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=True)
 
+    chapters = db.relationship('Chapter', backref='subject', cascade="all, delete-orphan")
+
 # Chapter Table
 class Chapter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
